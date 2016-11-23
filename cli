@@ -1,0 +1,97 @@
+<?php
+
+// require app database config
+require_once 'config/environment.php';
+require_once 'config/database.php';
+
+// autoload dependencies via composer
+require_once 'vendor/autoload.php';
+
+// initialize database connection
+DB::initialize();
+
+if (isset($argv[1]) && isset($argv[2]) && $argv[1] == 'install' && $argv[2] == 'database') {
+	// database installation command executed
+	$stm = DB::get_pdo()->prepare('
+		CREATE TABLE IF NOT EXISTS `user` (
+		  `id` INT(11) NOT NULL AUTO_INCREMENT,
+		  `username` VARCHAR(255) NOT NULL,
+		  `email_address` VARCHAR(255) DEFAULT NULL,
+		  `timezone` VARCHAR(255) NOT NULL,
+		  `password_hash` VARCHAR(255) NOT NULL,
+		  `password_reset_token` VARCHAR(255) DEFAULT NULL,
+		  `password_reset_expire` INT(11) DEFAULT NULL,
+		  `level` ENUM(\'Admin\',\'Standard\') NOT NULL,
+		  `permissions` TEXT,
+		  PRIMARY KEY (`id`)
+		) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+
+		INSERT INTO `user` (`id`, `username`, `email_address`, `timezone`, `password_hash`, `password_reset_token`, `password_reset_expire`, `level`, `permissions`) VALUES
+		(1, \'Admin\', \'admin@example.com\', \'America/Toronto\', \'$2y$10$C1xL2xEXQIbIhbqpAkETtejZpYe68J0PqjF0TgMmW4ORmcorA/io2\', NULL, NULL, \'Admin\', \'N;\');
+
+		CREATE TABLE IF NOT EXISTS `user_attempts` (
+		  `id` INT(11) NOT NULL AUTO_INCREMENT,
+		  `action` VARCHAR(255) NOT NULL,
+		  `ip` VARCHAR(255) NOT NULL,
+		  `date_attempted` INT(11) NOT NULL,
+		  PRIMARY KEY (`id`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+		CREATE TABLE IF NOT EXISTS `user_tokens` (
+		  `id` INT(11) NOT NULL AUTO_INCREMENT,
+		  `user_id` INT(11) NOT NULL,
+		  `token` VARCHAR(255) NOT NULL,
+		  PRIMARY KEY (`id`)
+		) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+	');
+	$stm->execute();
+
+	echo 'Database installed successfully';
+}
+else if (isset($argv[1]) && $argv[1] == 'generate') {
+	// object generator command executed
+
+	// check if object name is set via command
+	if (!isset($argv[2])) {
+		echo 'New object name required'.PHP_EOL;
+		echo 'Example: php generate "New Object Name"';
+		die();
+	}
+
+	// set names used for string replacement
+	ObjectGenerator::set_names($argv[2]);
+
+	// check if object exists
+	if (ObjectGenerator::object_exists()) {
+		die('An object with that name already exists');
+	}
+
+	// create db table if it doesn't already exist
+	ObjectGenerator::create_db_table();
+
+	// add permissions line to app config file
+	ObjectGenerator::add_permissions();
+
+	// add routes to routes file
+	ObjectGenerator::add_routes();
+
+	// add menu item to header view file
+	ObjectGenerator::add_menu_item();
+
+	// create model file
+	ObjectGenerator::create_model();
+
+	// create view files
+	ObjectGenerator::create_views();
+
+	// create controller file
+	ObjectGenerator::create_controller();
+
+	// execute "composer update" command so the autoloader gets updated with the new files
+	exec('composer update');
+
+	echo 'New object "'.$argv[2].'" generated successfully';
+}
+else {
+	echo 'Invalid command';
+}

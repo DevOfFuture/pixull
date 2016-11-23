@@ -1,0 +1,20 @@
+/* core Pixull CSS */
+
+.dataTables_scroll {
+	margin-bottom: 6px;
+}
+
+.table>thead>tr>th {
+	white-space: nowrap;
+}
+.table>tbody>tr>td {
+	vertical-align: middle;
+}
+
+.actions-column {
+	text-align: right;
+	white-space: nowrap;
+}
+.actions-column .tooltip {
+	position: fixed;
+}

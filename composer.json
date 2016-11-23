@@ -1,0 +1,26 @@
+{
+  "name": "kjdion84/pixull",
+  "type": "project",
+  "description": "A lighter weight PHP backend framework.",
+  "keywords": ["pixull", "framework", "backend"],
+  "homepage": "http://pixull.com",
+  "license": "MIT",
+  "authors": [
+	{
+	  "name": "Kevin Dion",
+	  "email": "kjdion84@gmail.com",
+	  "role": "Developer"
+	}
+  ],
+  "autoload": {
+	"classmap": [
+	  "controllers",
+	  "helpers",
+	  "models"
+	]
+  },
+  "require": {
+	"phpmailer/phpmailer": "*",
+	"mmucklo/inflect": "*"
+  }
+}

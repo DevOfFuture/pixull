@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+
+	# disable directly viewing folder contents
+	Options -Indexes
+
+	# populate GET path parameter with URL
+	RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php?path=$1 [L]
+</IfModule>
